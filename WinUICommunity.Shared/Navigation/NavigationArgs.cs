@@ -1,7 +1,7 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 using WinUICommunity.Shared.DataModel;
 
-namespace WinUICommunity.Shared.Internal;
+namespace WinUICommunity.Shared.Navigation;
 
 public class NavigationArgs
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Controls;
 
-namespace WinUICommunity.Shared.Internal;
+namespace WinUICommunity.Shared.Navigation;
 public static class NavigationExtension
 {
     public static void EnsureNavigationSelection(this NavigationView navigationView, string id)
