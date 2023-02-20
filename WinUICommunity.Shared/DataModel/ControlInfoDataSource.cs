@@ -14,11 +14,11 @@ namespace WinUICommunity.Shared.DataModel;
 /// </summary>
 public class ControlInfoDataItem
 {
-    public ControlInfoDataItem(string uniqueId, string title, string apiNamespace, string subtitle, string imagePath, string imageIconPath, string badgeString, string description, string content, bool isNew, bool isUpdated, bool isPreview, bool hideSourceCodeAndRelatedControls)
+    public ControlInfoDataItem(string uniqueId, string title, string secondaryTitle, string apiNamespace, string subtitle, string imagePath, string imageIconPath, string badgeString, string description, string content, bool isNew, bool isUpdated, bool isPreview, bool hideSourceCodeAndRelatedControls)
     {
         UniqueId = uniqueId;
         Title = title;
-
+        SecondaryTitle = secondaryTitle;
         ApiNamespace = apiNamespace;
         Subtitle = subtitle;
         Description = description;
@@ -36,6 +36,7 @@ public class ControlInfoDataItem
 
     public string UniqueId { get; private set; }
     public string Title { get; private set; }
+    public string SecondaryTitle { get; private set; }
     public string ApiNamespace { get; private set; }
     public string Subtitle { get; private set; }
     public string Description { get; private set; }
@@ -75,10 +76,11 @@ public class ControlInfoDocLink
 /// </summary>
 public class ControlInfoDataGroup
 {
-    public ControlInfoDataGroup(string uniqueId, string title, string subtitle, string imagePath, string imageIconPath, string description, string apiNamespace, bool isSpecialSection)
+    public ControlInfoDataGroup(string uniqueId, string title, string secondaryTitle, string subtitle, string imagePath, string imageIconPath, string description, string apiNamespace, bool isSpecialSection)
     {
         UniqueId = uniqueId;
         Title = title;
+        SecondaryTitle = secondaryTitle;
         ApiNamespace = apiNamespace;
         Subtitle = subtitle;
         Description = description;
@@ -90,6 +92,7 @@ public class ControlInfoDataGroup
 
     public string UniqueId { get; private set; }
     public string Title { get; private set; }
+    public string SecondaryTitle { get; private set; }
     public string Subtitle { get; private set; }
     public string Description { get; private set; }
     public string ImagePath { get; private set; }
@@ -199,6 +202,7 @@ public sealed class ControlInfoDataSource
                 var usesCustomNavigationItems = groupObject.ContainsKey("IsSpecialSection") ? groupObject["IsSpecialSection"].GetBoolean() : false;
                 ControlInfoDataGroup group = new ControlInfoDataGroup(groupObject["UniqueId"].GetString(),
                                                                       groupObject["Title"].GetString(),
+                                                                      groupObject["SecondaryTitle"].GetString(),
                                                                       groupObject["ApiNamespace"].GetString(),
                                                                       groupObject["Subtitle"].GetString(),
                                                                       groupObject["ImagePath"].GetString(),
@@ -233,6 +237,7 @@ public sealed class ControlInfoDataSource
                     var hideSourceCodeAndRelatedControls = itemObject.ContainsKey("HideSourceCodeAndRelatedControls") ? itemObject["HideSourceCodeAndRelatedControls"].GetBoolean() : false;
                     var item = new ControlInfoDataItem(itemObject["UniqueId"].GetString(),
                                                             itemObject["Title"].GetString(),
+                                                            itemObject["SecondaryTitle"].GetString(),
                                                             itemObject["ApiNamespace"].GetString(),
                                                             itemObject["Subtitle"].GetString(),
                                                             itemObject["ImagePath"].GetString(),
