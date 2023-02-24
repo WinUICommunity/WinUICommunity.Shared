@@ -14,7 +14,7 @@ namespace WinUICommunity.Shared.DataModel;
 /// </summary>
 public class ControlInfoDataItem
 {
-    public ControlInfoDataItem(string uniqueId, string title, string secondaryTitle, string apiNamespace, string subtitle, string imagePath, string imageIconPath, string badgeString, string description, string content, bool isNew, bool isUpdated, bool isPreview, bool hideSourceCodeAndRelatedControls)
+    public ControlInfoDataItem(string uniqueId, string title, string secondaryTitle, string apiNamespace, string subtitle, string imagePath, string imageIconPath, string badgeString, string description, string content, bool isNew, bool isUpdated, bool isPreview, bool hideItem, bool hideSourceCodeAndRelatedControls)
     {
         UniqueId = uniqueId;
         Title = title;
@@ -32,6 +32,7 @@ public class ControlInfoDataItem
         Docs = new ObservableCollection<ControlInfoDocLink>();
         RelatedControls = new ObservableCollection<string>();
         HideSourceCodeAndRelatedControls = hideSourceCodeAndRelatedControls;
+        HideItem = hideItem;
     }
 
     public string UniqueId { get; private set; }
@@ -47,6 +48,7 @@ public class ControlInfoDataItem
     public bool IsNew { get; private set; }
     public bool IsUpdated { get; private set; }
     public bool IsPreview { get; private set; }
+    public bool HideItem { get; private set; }
     public bool HideSourceCodeAndRelatedControls { get; private set; }
     public ObservableCollection<ControlInfoDocLink> Docs { get; private set; }
     public ObservableCollection<string> RelatedControls { get; private set; }
@@ -76,7 +78,7 @@ public class ControlInfoDocLink
 /// </summary>
 public class ControlInfoDataGroup
 {
-    public ControlInfoDataGroup(string uniqueId, string title, string secondaryTitle, string subtitle, string imagePath, string imageIconPath, string description, string apiNamespace, bool isSpecialSection)
+    public ControlInfoDataGroup(string uniqueId, string title, string secondaryTitle, string subtitle, string imagePath, string imageIconPath, string description, string apiNamespace, bool isSpecialSection, bool hideGroup, bool isSingleGroup, bool isExpanded)
     {
         UniqueId = uniqueId;
         Title = title;
@@ -88,6 +90,9 @@ public class ControlInfoDataGroup
         ImageIconPath = imageIconPath;
         Items = new ObservableCollection<ControlInfoDataItem>();
         IsSpecialSection = isSpecialSection;
+        HideGroup = hideGroup;
+        IsSingleGroup = isSingleGroup;
+        IsExpanded = isExpanded;
     }
 
     public string UniqueId { get; private set; }
@@ -99,6 +104,9 @@ public class ControlInfoDataGroup
     public string ImageIconPath { get; private set; }
     public string ApiNamespace { get; private set; } = "";
     public bool IsSpecialSection { get; set; }
+    public bool HideGroup { get; private set; }
+    public bool IsSingleGroup { get; private set; }
+    public bool IsExpanded { get; private set; }
     public ObservableCollection<ControlInfoDataItem> Items { get; private set; }
 
     public override string ToString()
@@ -200,6 +208,9 @@ public sealed class ControlInfoDataSource
                 JsonObject groupObject = groupValue.GetObject();
 
                 var usesCustomNavigationItems = groupObject.ContainsKey("IsSpecialSection") ? groupObject["IsSpecialSection"].GetBoolean() : false;
+                var hideGroup = groupObject.ContainsKey("HideGroup") ? groupObject["HideGroup"].GetBoolean() : false;
+                var isSingleGroup = groupObject.ContainsKey("IsSingleGroup") ? groupObject["IsSingleGroup"].GetBoolean() : false;
+                var isExpanded = groupObject.ContainsKey("IsExpanded") ? groupObject["IsExpanded"].GetBoolean() : false;
                 ControlInfoDataGroup group = new ControlInfoDataGroup(groupObject["UniqueId"].GetString(),
                                                                       groupObject["Title"].GetString(),
                                                                       groupObject["SecondaryTitle"].GetString(),
@@ -208,7 +219,10 @@ public sealed class ControlInfoDataSource
                                                                       groupObject["ImagePath"].GetString(),
                                                                       groupObject["ImageIconPath"].GetString(),
                                                                       groupObject["Description"].GetString(),
-                                                                      usesCustomNavigationItems);
+                                                                      usesCustomNavigationItems,
+                                                                      hideGroup,
+                                                                      isSingleGroup,
+                                                                      isExpanded);
 
                 foreach (JsonValue itemValue in groupObject["Items"].GetArray())
                 {
@@ -220,6 +234,7 @@ public sealed class ControlInfoDataSource
                     bool isUpdated = itemObject.ContainsKey("IsUpdated") ? itemObject["IsUpdated"].GetBoolean() : false;
                     bool isPreview = itemObject.ContainsKey("IsPreview") ? itemObject["IsPreview"].GetBoolean() : false;
                     bool isIncludedInBuild = itemObject.ContainsKey("IncludedInBuild") ? itemObject["IncludedInBuild"].GetBoolean() : false;
+                    bool hideItem = itemObject.ContainsKey("HideItem") ? itemObject["HideItem"].GetBoolean() : false;
 
                     if (isNew)
                     {
@@ -248,6 +263,7 @@ public sealed class ControlInfoDataSource
                                                             isNew,
                                                             isUpdated,
                                                             isPreview,
+                                                            hideItem,
                                                             hideSourceCodeAndRelatedControls);
 
                     {
