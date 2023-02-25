@@ -14,7 +14,7 @@ namespace WinUICommunity.Shared.DataModel;
 /// </summary>
 public class ControlInfoDataItem
 {
-    public ControlInfoDataItem(string uniqueId, string title, string secondaryTitle, string apiNamespace, string subtitle, string imagePath, string imageIconPath, string badgeString, string description, string content, bool isNew, bool isUpdated, bool isPreview, bool hideItem, bool hideSourceCodeAndRelatedControls)
+    public ControlInfoDataItem(string uniqueId, string title, string secondaryTitle, string apiNamespace, string subtitle, string imagePath, string imageIconPath, string badgeString, string description, string content, bool isNew, bool isUpdated, bool isPreview, bool hideItem, bool hideNavigationViewItem, bool hideSourceCodeAndRelatedControls)
     {
         UniqueId = uniqueId;
         Title = title;
@@ -33,6 +33,7 @@ public class ControlInfoDataItem
         RelatedControls = new ObservableCollection<string>();
         HideSourceCodeAndRelatedControls = hideSourceCodeAndRelatedControls;
         HideItem = hideItem;
+        HideNavigationViewItem = hideNavigationViewItem;
     }
 
     public string UniqueId { get; private set; }
@@ -49,6 +50,7 @@ public class ControlInfoDataItem
     public bool IsUpdated { get; private set; }
     public bool IsPreview { get; private set; }
     public bool HideItem { get; private set; }
+    public bool HideNavigationViewItem { get; private set; }
     public bool HideSourceCodeAndRelatedControls { get; private set; }
     public ObservableCollection<ControlInfoDocLink> Docs { get; private set; }
     public ObservableCollection<string> RelatedControls { get; private set; }
@@ -235,6 +237,7 @@ public sealed class ControlInfoDataSource
                     bool isPreview = itemObject.ContainsKey("IsPreview") ? itemObject["IsPreview"].GetBoolean() : false;
                     bool isIncludedInBuild = itemObject.ContainsKey("IncludedInBuild") ? itemObject["IncludedInBuild"].GetBoolean() : false;
                     bool hideItem = itemObject.ContainsKey("HideItem") ? itemObject["HideItem"].GetBoolean() : false;
+                    bool hideNavigationViewItem = itemObject.ContainsKey("HideNavigationViewItem") ? itemObject["HideNavigationViewItem"].GetBoolean() : false;
 
                     if (isNew)
                     {
@@ -264,6 +267,7 @@ public sealed class ControlInfoDataSource
                                                             isUpdated,
                                                             isPreview,
                                                             hideItem,
+                                                            hideNavigationViewItem,
                                                             hideSourceCodeAndRelatedControls);
 
                     {
