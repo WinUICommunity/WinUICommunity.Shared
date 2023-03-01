@@ -14,7 +14,10 @@ namespace WinUICommunity.Shared.DataModel;
 /// </summary>
 public class ControlInfoDataItem
 {
-    public ControlInfoDataItem(string uniqueId, string title, string secondaryTitle, string apiNamespace, string subtitle, string imagePath, string imageIconPath, string badgeString, string description, string content, bool isNew, bool isUpdated, bool isPreview, bool hideItem, bool hideNavigationViewItem, bool hideSourceCodeAndRelatedControls)
+    public ControlInfoDataItem(string uniqueId, string title, string secondaryTitle, string apiNamespace, string subtitle, 
+        string imagePath, string imageIconPath, string badgeString, string description, string content, 
+        bool isNew, bool isUpdated, bool isPreview, bool hideItem, bool hideNavigationViewItem,
+        bool hideSourceCodeAndRelatedControls, ControlInfoBadge infoBadge)
     {
         UniqueId = uniqueId;
         Title = title;
@@ -34,6 +37,7 @@ public class ControlInfoDataItem
         HideSourceCodeAndRelatedControls = hideSourceCodeAndRelatedControls;
         HideItem = hideItem;
         HideNavigationViewItem = hideNavigationViewItem;
+        InfoBadge = infoBadge;
     }
 
     public string UniqueId { get; private set; }
@@ -54,7 +58,7 @@ public class ControlInfoDataItem
     public bool HideSourceCodeAndRelatedControls { get; private set; }
     public ObservableCollection<ControlInfoDocLink> Docs { get; private set; }
     public ObservableCollection<string> RelatedControls { get; private set; }
-
+    public ControlInfoBadge InfoBadge { get; private set; }
     public bool IncludedInBuild { get; set; }
 
     public override string ToString()
@@ -74,13 +78,42 @@ public class ControlInfoDocLink
     public string Uri { get; private set; }
 }
 
+public class ControlInfoBadge
+{
+    public ControlInfoBadge(string badgeValue, string badgeStyle, string badgeSymbolIcon, string badgeBitmapIcon, string badgeFontIconGlyph, string badgeFontIconFontName, bool hideBadge, bool hideNavigationViewItemBadge, int badgeHeight, int badgeWidth)
+    {
+        BadgeValue = badgeValue;
+        BadgeStyle = badgeStyle;
+        BadgeSymbolIcon = badgeSymbolIcon;
+        BadgeBitmapIcon = badgeBitmapIcon;
+        BadgeFontIconGlyph = badgeFontIconGlyph;
+        BadgeFontIconFontName = badgeFontIconFontName;
+        HideBadge = hideBadge;
+        HideNavigationViewItemBadge = hideNavigationViewItemBadge;
+        BadgeHeight = badgeHeight;
+        BadgeWidth = badgeWidth;
+    }
+    public string BadgeValue { get; private set; }
+    public string BadgeStyle { get; private set; }
+    public string BadgeSymbolIcon { get; private set; }
+    public string BadgeBitmapIcon { get; private set; }
+    public string BadgeFontIconGlyph { get; private set; }
+    public string BadgeFontIconFontName { get; private set; }
+    public int BadgeWidth { get; private set; }
+    public int BadgeHeight { get; private set; }
+    public bool HideBadge { get; private set; }
+    public bool HideNavigationViewItemBadge { get; private set; }
+}
+
 
 /// <summary>
 /// Generic group data model.
 /// </summary>
 public class ControlInfoDataGroup
 {
-    public ControlInfoDataGroup(string uniqueId, string title, string secondaryTitle, string subtitle, string imagePath, string imageIconPath, string description, string apiNamespace, bool isSpecialSection, bool hideGroup, bool isSingleGroup, bool isExpanded)
+    public ControlInfoDataGroup(string uniqueId, string title, string secondaryTitle, string subtitle, string imagePath, 
+        string imageIconPath, string description, string apiNamespace, bool isSpecialSection, bool hideGroup,
+        bool isSingleGroup, bool isExpanded, ControlInfoBadge infoBadge)
     {
         UniqueId = uniqueId;
         Title = title;
@@ -95,6 +128,7 @@ public class ControlInfoDataGroup
         HideGroup = hideGroup;
         IsSingleGroup = isSingleGroup;
         IsExpanded = isExpanded;
+        InfoBadge = infoBadge;
     }
 
     public string UniqueId { get; private set; }
@@ -110,7 +144,7 @@ public class ControlInfoDataGroup
     public bool IsSingleGroup { get; private set; }
     public bool IsExpanded { get; private set; }
     public ObservableCollection<ControlInfoDataItem> Items { get; private set; }
-
+    public ControlInfoBadge InfoBadge { get; private set; }
     public override string ToString()
     {
         return Title;
@@ -213,18 +247,22 @@ public sealed class ControlInfoDataSource
                 var hideGroup = groupObject.ContainsKey("HideGroup") ? groupObject["HideGroup"].GetBoolean() : false;
                 var isSingleGroup = groupObject.ContainsKey("IsSingleGroup") ? groupObject["IsSingleGroup"].GetBoolean() : false;
                 var isExpanded = groupObject.ContainsKey("IsExpanded") ? groupObject["IsExpanded"].GetBoolean() : false;
+
+                var infoBadgeGroup = GetInfoBadge(groupObject);
+
                 ControlInfoDataGroup group = new ControlInfoDataGroup(groupObject["UniqueId"].GetString(),
                                                                       groupObject["Title"].GetString(),
                                                                       groupObject["SecondaryTitle"].GetString(),
-                                                                      groupObject["ApiNamespace"].GetString(),
                                                                       groupObject["Subtitle"].GetString(),
                                                                       groupObject["ImagePath"].GetString(),
                                                                       groupObject["ImageIconPath"].GetString(),
                                                                       groupObject["Description"].GetString(),
+                                                                      groupObject["ApiNamespace"].GetString(),
                                                                       usesCustomNavigationItems,
                                                                       hideGroup,
                                                                       isSingleGroup,
-                                                                      isExpanded);
+                                                                      isExpanded,
+                                                                      infoBadgeGroup);
 
                 foreach (JsonValue itemValue in groupObject["Items"].GetArray())
                 {
@@ -238,6 +276,8 @@ public sealed class ControlInfoDataSource
                     bool isIncludedInBuild = itemObject.ContainsKey("IncludedInBuild") ? itemObject["IncludedInBuild"].GetBoolean() : false;
                     bool hideItem = itemObject.ContainsKey("HideItem") ? itemObject["HideItem"].GetBoolean() : false;
                     bool hideNavigationViewItem = itemObject.ContainsKey("HideNavigationViewItem") ? itemObject["HideNavigationViewItem"].GetBoolean() : false;
+
+                    var infoBadge = GetInfoBadge(itemObject);
 
                     if (isNew)
                     {
@@ -268,7 +308,8 @@ public sealed class ControlInfoDataSource
                                                             isPreview,
                                                             hideItem,
                                                             hideNavigationViewItem,
-                                                            hideSourceCodeAndRelatedControls);
+                                                            hideSourceCodeAndRelatedControls,
+                                                            infoBadge);
 
                     {
                         string pageString = item.UniqueId;
@@ -313,5 +354,38 @@ public sealed class ControlInfoDataSource
                 }
             }
         }
+    }
+
+    private ControlInfoBadge GetInfoBadge(JsonObject jsonObject)
+    {
+        var infoBadgeObject = jsonObject.ContainsKey("InfoBadge") ? jsonObject["InfoBadge"].GetObject() : null;
+
+        string badgeValue = null;
+        string badgeStyle = null;
+        string badgeSymbolcon = null;
+        string badgeBitmapIcon = null;
+        string badgeFontIconGlyph = null;
+        string badgeFontIconFontName = null;
+        int badgeWidth = 0;
+        int badgeHeight = 0;
+        bool hideBadge = false;
+        bool hideNavigationViewItemBadge = false;
+
+        if (infoBadgeObject is not null)
+        {
+            badgeValue = infoBadgeObject.ContainsKey("BadgeValue") ? infoBadgeObject["BadgeValue"].GetString() : null;
+            badgeStyle = infoBadgeObject.ContainsKey("BadgeStyle") ? infoBadgeObject["BadgeStyle"].GetString() : "AttentionValueInfoBadgeStyle";
+            badgeSymbolcon = infoBadgeObject.ContainsKey("BadgeSymbolIcon") ? infoBadgeObject["BadgeSymbolIcon"].GetString() : null;
+            badgeBitmapIcon = infoBadgeObject.ContainsKey("BadgeBitmapIcon") ? infoBadgeObject["BadgeBitmapIcon"].GetString() : null;
+            badgeFontIconGlyph = infoBadgeObject.ContainsKey("BadgeFontIconGlyph") ? infoBadgeObject["BadgeFontIconGlyph"].GetString() : null;
+            badgeFontIconFontName = infoBadgeObject.ContainsKey("BadgeFontIconFontName") ? infoBadgeObject["BadgeFontIconFontName"].GetString() : null;
+            badgeHeight = infoBadgeObject.ContainsKey("BadgeHeight") ? Convert.ToInt32(infoBadgeObject["BadgeHeight"].GetNumber()) : 0;
+            badgeWidth = infoBadgeObject.ContainsKey("BadgeWidth") ? Convert.ToInt32(infoBadgeObject["BadgeWidth"].GetNumber()) : 0;
+            hideBadge = infoBadgeObject.ContainsKey("HideBadge") ? infoBadgeObject["HideBadge"].GetBoolean() : false;
+            hideNavigationViewItemBadge = infoBadgeObject.ContainsKey("HideNavigationViewItemBadge") ? infoBadgeObject["HideNavigationViewItemBadge"].GetBoolean() : false;
+            
+            return new ControlInfoBadge(badgeValue, badgeStyle, badgeSymbolcon, badgeBitmapIcon, badgeFontIconGlyph, badgeFontIconFontName, hideBadge, hideNavigationViewItemBadge, badgeHeight, badgeWidth);
+        }
+        return null;
     }
 }
